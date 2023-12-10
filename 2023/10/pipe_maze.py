@@ -1,11 +1,3 @@
-
-class Node2:
-    def __init__(self, north, east, south, west) -> None:
-        self.north = north
-        self.east = east
-        self.south = south
-        self.west = west
-
 class Point:
     def __init__(self, x: int, y: int) -> None:
         self.x = x
