@@ -85,7 +85,7 @@ def read_input(file_name) -> list[list[str]]:
     with open(file_name) as f:
         for line in f.readlines():
             row = []
-            for c in line:
+            for c in line.strip():
                 row.append(c)
             result.append(row)
     return result
@@ -110,7 +110,7 @@ def get_start_neighbors(start: Point, maze: list[list[str]]) -> list[Node]:
 
 
 
-def navigate_maze(maze: list[list[str]]) -> int:
+def navigate_maze(maze: list[list[str]]) -> set[int]:
     start = find_start(maze)
     start.print()
     # print()
@@ -118,8 +118,11 @@ def navigate_maze(maze: list[list[str]]) -> int:
     max_position = Point(-1, -1)
     queue = get_start_neighbors(start, maze)
     visited = set()
+    visited.add(tuple([start.x, start.y]))
     while len(queue) > 0:
         node = queue.pop(0)
+        position_tuple = tuple([node.position.x, node.position.y])
+        visited.add(position_tuple)
         node.print()
         if not node.is_connected():
             print('not connected')
@@ -127,21 +130,67 @@ def navigate_maze(maze: list[list[str]]) -> int:
         next_point = node.get_next()
         symbol = maze[next_point.y][next_point.x]
         next_node = Node(symbol, next_point, node.position, node.distance + 1)
-        position_tuple = tuple([next_point.x, next_point.y])
+        next_position_tuple = tuple([next_point.x, next_point.y])
         # print(position_tuple, visited)
         print('next:', next_node.to_string())
-        if not (position_tuple in visited):
+        if not (next_position_tuple in visited):
             print('add to queue')
             queue.append(next_node)
-            visited.add(position_tuple)
             if next_node.distance > max_distance:
                 max_distance = next_node.distance
                 max_position = next_node.position
         
-    print(max_distance, max_position.to_string())
+    print('max_distance:', max_distance, max_position.to_string())
+
+    return visited
+    
+def is_on_ring(row, col, pipe_ring):
+    return tuple([col, row]) in pipe_ring
+
+def get_inside_area(maze: list[list[str]], pipe_ring: set[int]) -> int:
+    opening_pipes = {'|', 'L', 'F', '-'}
+    closing_pipes = {'|', 'J', '7'}
+    area = 0
+    for row_idx in range(len(maze)):
+        row = maze[row_idx]
+        row_area = 0
+        inside = False
+        changed = False
+        for col_idx in range(len(row)):
+            if is_on_ring(row_idx, col_idx, pipe_ring):
+                symbol = maze[row_idx][col_idx]
+                # if inside:
+                #     if symbol in {'|', 'L', 'F', '7'}:
+                #         inside = False
+
+                # else:
+                #     if symbol in {'|', 'L', 'F'}:
+                #         inside = True
+
+                if not inside and (symbol in opening_pipes):
+                    inside = True
+                else:
+                    inside = False if (symbol in closing_pipes) else True
+            else:
+                if inside:
+                    row_area += 1
+                    maze[row_idx][col_idx] = 'I'
+                else:
+                    maze[row_idx][col_idx] = 'O'
+
+        area += row_area
+    return area
 
 
+# maze = read_input('input.txt')
+maze = read_input('input_small.txt')
 
-maze = read_input('input.txt')
+pipe_ring = navigate_maze(maze)
+# print(len(pipe_ring),pipe_ring)
 
-navigate_maze(maze)
+area = get_inside_area(maze, pipe_ring)
+print('area:', area)
+for row in maze:
+    for c in row:
+        print(c, end='')
+    print()
