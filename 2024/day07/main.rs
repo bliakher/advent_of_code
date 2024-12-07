@@ -36,19 +36,12 @@ fn parse_input(filename: &str) -> Vec<Equation> {
 }
 
 fn test_equation(eq: &Equation, allowed_ops: &Vec<Operator>) -> bool {
-    for next_op in allowed_ops {
-        if try_operator(
-            *next_op,
-            allowed_ops,
-            &eq.equation,
-            1,
-            eq.test_value,
-            eq.equation[0],
-        ) {
-            return true;
-        }
-    }
-    return false;
+    return try_operator(
+        allowed_ops,
+        &eq.equation[1..],
+        eq.test_value,
+        eq.equation[0],
+    );
 }
 
 fn concat(n1: i64, n2: i64) -> i64 {
@@ -58,35 +51,20 @@ fn concat(n1: i64, n2: i64) -> i64 {
     return res.parse().unwrap();
 }
 
-fn try_operator(
-    op: Operator,
-    allowed_ops: &Vec<Operator>,
-    values: &Vec<i64>,
-    from_idx: usize,
-    target: i64,
-    cur_value: i64,
-) -> bool {
-    if from_idx >= values.len() {
+fn try_operator(allowed_ops: &Vec<Operator>, values: &[i64], target: i64, cur_value: i64) -> bool {
+    if values.len() == 0 {
         return cur_value == target;
     }
     if cur_value > target {
         return false;
     }
-    let mut new_result = cur_value;
-    match op {
-        Operator::Add => new_result += values[from_idx],
-        Operator::Multiply => new_result *= values[from_idx],
-        Operator::Concat => new_result = concat(cur_value, values[from_idx]),
-    }
-    for next_op in allowed_ops {
-        if try_operator(
-            *next_op,
-            allowed_ops,
-            values,
-            from_idx + 1,
-            target,
-            new_result,
-        ) {
+    for op in allowed_ops {
+        let new_result = match op {
+            Operator::Add => cur_value + values[0],
+            Operator::Multiply => cur_value * values[0],
+            Operator::Concat => concat(cur_value, values[0]),
+        };
+        if try_operator(allowed_ops, &values[1..], target, new_result) {
             return true;
         }
     }
