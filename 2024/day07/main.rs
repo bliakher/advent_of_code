@@ -8,9 +8,11 @@ struct Equation {
     equation: Vec<i64>,
 }
 
+#[derive(Clone, Copy)]
 enum Operator {
     Add,
     Multiply,
+    Concat,
 }
 
 fn parse_input(filename: &str) -> Vec<Equation> {
@@ -33,71 +35,91 @@ fn parse_input(filename: &str) -> Vec<Equation> {
     return list;
 }
 
-fn test_equation(eq: &Equation) -> bool {
-    let first_add = try_operator(
-        Operator::Add,
-        &eq.equation,
-        1,
-        eq.test_value,
-        eq.equation[0],
-    );
-    if first_add == eq.test_value {
-        return true;
+fn test_equation(eq: &Equation, allowed_ops: &Vec<Operator>) -> bool {
+    for next_op in allowed_ops {
+        if try_operator(
+            *next_op,
+            allowed_ops,
+            &eq.equation,
+            1,
+            eq.test_value,
+            eq.equation[0],
+        ) {
+            return true;
+        }
     }
-    let first_mul = try_operator(
-        Operator::Multiply,
-        &eq.equation,
-        1,
-        eq.test_value,
-        eq.equation[0],
-    );
-    return first_mul == eq.test_value;
+    return false;
+}
+
+fn concat(n1: i64, n2: i64) -> i64 {
+    let mut res = String::new();
+    res.push_str(&n1.to_string());
+    res.push_str(&n2.to_string());
+    return res.parse().unwrap();
 }
 
 fn try_operator(
     op: Operator,
+    allowed_ops: &Vec<Operator>,
     values: &Vec<i64>,
     from_idx: usize,
     target: i64,
     cur_value: i64,
-) -> i64 {
+) -> bool {
     if from_idx >= values.len() {
-        return cur_value;
+        return cur_value == target;
     }
     if cur_value > target {
-        return cur_value;
+        return false;
     }
     let mut new_result = cur_value;
     match op {
         Operator::Add => new_result += values[from_idx],
         Operator::Multiply => new_result *= values[from_idx],
+        Operator::Concat => new_result = concat(cur_value, values[from_idx]),
     }
-    let try_add = try_operator(Operator::Add, values, from_idx + 1, target, new_result);
-    if try_add == target {
-        return try_add;
+    for next_op in allowed_ops {
+        if try_operator(
+            *next_op,
+            allowed_ops,
+            values,
+            from_idx + 1,
+            target,
+            new_result,
+        ) {
+            return true;
+        }
     }
-    let try_mul = try_operator(Operator::Multiply, values, from_idx + 1, target, new_result);
-    return try_mul;
+    return false;
 }
 
-fn part1(filename: &str) {
-    // let res = try_operator(Operator::Add, &vec![81, 40, 27], 1, 3267, 81);
-    let equations = parse_input(filename);
+fn solve(equations: &Vec<Equation>, allowed_ops: &Vec<Operator>) -> i64 {
     let res: i64 = equations
         .iter()
-        .map(|eq| match test_equation(&eq) {
+        .map(|eq| match test_equation(&eq, allowed_ops) {
             true => eq.test_value,
             false => 0,
         })
         .sum();
+    return res;
+}
 
-    // let mut res = 0;
+fn part1(filename: &str) {
+    let equations = parse_input(filename);
+    let res: i64 = solve(&equations, &vec![Operator::Add, Operator::Multiply]);
     println!("{res}")
 }
 
-fn part2(filename: &str) {}
+fn part2(filename: &str) {
+    let equations = parse_input(filename);
+    let res: i64 = solve(
+        &equations,
+        &vec![Operator::Add, Operator::Multiply, Operator::Concat],
+    );
+    println!("{res}")
+}
 
 fn main() {
     part1("day07/input.txt");
-    part2("day07/small_input.txt");
+    part2("day07/input.txt");
 }
