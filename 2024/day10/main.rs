@@ -80,50 +80,47 @@ fn read_input(filename: &str) -> Map<i32> {
     return Map { map: list };
 }
 
-fn find_trails(map: &Map<i32>, trail_head: Pos) -> i32 {
+fn find_trails(map: &Map<i32>, trail_head: Pos) -> (i32, i32) {
     // trails need to start at height 0
     if map.get(&trail_head) != 0 {
-        return 0;
+        return (0, 0);
     }
     let mut queue = VecDeque::new();
-    let mut visited = HashSet::<Pos>::new();
     let mut visited_peaks = HashSet::<Pos>::new();
+    let mut complete_trails = 0;
     queue.push_back(trail_head);
     while queue.len() > 0 {
         let cur = queue.pop_front().unwrap();
-        if visited.contains(&cur) {
-            continue;
-        }
-        visited.insert(cur);
         let cur_height = map.get(&cur);
         // reaching the peak
         if cur_height == 9 {
+            complete_trails += 1;
             visited_peaks.insert(cur);
             continue;
         }
         let neighbors = map.filter_neighbors(&cur, |x| x == cur_height + 1);
         queue.extend(neighbors.iter());
     }
-    return visited_peaks.len() as i32;
+    return (visited_peaks.len() as i32, complete_trails);
 }
 
-fn part1(filename: &str) {
+fn part1and2(filename: &str) {
     let map = read_input(filename);
-    let mut sum = 0;
+    let mut sum_peaks = 0;
+    let mut sum_trails = 0;
     // TODO: add iterator over positions
     for i in 0..map.rows() {
         for j in 0..map.cols() {
             let pos = Pos { i, j };
-            let trails = find_trails(&map, pos);
-            sum += trails;
+            let (peaks, trails) = find_trails(&map, pos);
+            sum_peaks += peaks;
+            sum_trails += trails;
         }
     }
-    println!("{sum}");
+    println!("Distinct peaks: {sum_peaks}");
+    println!("Distinct trails: {sum_trails}");
 }
 
-fn part2(filename: &str) {}
-
 fn main() {
-    part1("day10/input.txt");
-    part2("day10/small_input.txt");
+    part1and2("day10/input.txt");
 }
