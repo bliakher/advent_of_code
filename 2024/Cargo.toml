@@ -5,6 +5,7 @@ edition = "2021"
 
 [[bin]]
 name = "this_day"
-path = "day10/main.rs"
+path = "day13/main.rs"
 
 [dependencies]
+num = "0.4.3"
