@@ -10,3 +10,6 @@ path = "day17/main.rs"
 [dependencies]
 delay = "0.3.1"
 num = "0.4.3"
+
+# [profile.dev]
+# opt-level = 3
