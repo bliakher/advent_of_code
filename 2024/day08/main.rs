@@ -6,6 +6,8 @@ use std::{
     str::FromStr,
 };
 
+use num;
+
 #[derive(PartialEq, Eq, Copy, Clone, Hash)]
 struct Pos {
     i: usize,
@@ -119,15 +121,38 @@ fn get_antinodes(pos1: Pos, pos2: Pos, map: &Map<char>) -> Vec<Pos> {
     res
 }
 
-fn get_all_antinodes(antenna_positions: &Vec<Pos>, map: &Map<char>) -> HashSet<Pos> {
-    let mut antinodes: HashSet<Pos> = HashSet::new();
-    for i in 1..antenna_positions.len() {
-        for j in 0..i {
-            let res = get_antinodes(antenna_positions[i], antenna_positions[j], map);
-            antinodes.extend(res);
-        }
+fn get_antinodes_in_line(pos1: Pos, pos2: Pos, map: &Map<char>) -> Vec<Pos> {
+    let mut res = Vec::new();
+    let i = pos1.i.max(pos2.i) as i32;
+    let mut j = pos1.j as i32;
+    let mut j2 = pos2.j as i32;
+    if i != pos1.i as i32 {
+        j = pos2.j as i32;
+        j2 = pos1.j as i32;
     }
-    antinodes
+    let diff_i = (pos1.i.max(pos2.i) - pos1.i.min(pos2.i)) as i32;
+    let diff_j = j - j2;
+    let mut i_down = i;
+    let mut j_down = j;
+    while map.inside(i_down, j_down) {
+        res.push(Pos {
+            i: i_down as usize,
+            j: j_down as usize,
+        });
+        i_down += diff_i;
+        j_down += diff_j;
+    }
+    let mut i_up = i;
+    let mut j_up = j;
+    while map.inside(i_up, j_up) {
+        res.push(Pos {
+            i: i_up as usize,
+            j: j_up as usize,
+        });
+        i_up -= diff_i;
+        j_up -= diff_j;
+    }
+    res
 }
 
 fn part1(filename: &str) {
@@ -145,8 +170,37 @@ fn part1(filename: &str) {
     }
     let mut antinodes: HashSet<Pos> = HashSet::new();
     for (_, positions) in antennas {
-        let res = get_all_antinodes(&positions, &map);
-        antinodes.extend(res);
+        for i in 1..positions.len() {
+            for j in 0..i {
+                let res = get_antinodes(positions[i], positions[j], &map);
+                antinodes.extend(res);
+            }
+        }
+    }
+    println!("{}", antinodes.len());
+}
+
+fn part2(filename: &str) {
+    let map = Map::<char>::parse_from_file(filename);
+    let mut antennas: HashMap<char, Vec<Pos>> = HashMap::new();
+    for pos in map.iter_pos() {
+        let symbol = map.get(&pos);
+        if symbol != '.' {
+            if antennas.contains_key(&symbol) {
+                antennas.get_mut(&symbol).unwrap().push(pos);
+            } else {
+                antennas.insert(symbol, vec![pos]);
+            }
+        }
+    }
+    let mut antinodes: HashSet<Pos> = HashSet::new();
+    for (_, positions) in antennas {
+        for i in 1..positions.len() {
+            for j in 0..i {
+                let res = get_antinodes_in_line(positions[i], positions[j], &map);
+                antinodes.extend(res);
+            }
+        }
     }
     println!("{}", antinodes.len());
 }
@@ -154,4 +208,6 @@ fn part1(filename: &str) {
 fn main() {
     part1("day08/small_input.txt");
     part1("day08/input.txt");
+    part2("day08/small_input.txt");
+    part2("day08/input.txt");
 }
