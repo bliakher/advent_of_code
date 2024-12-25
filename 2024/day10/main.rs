@@ -4,18 +4,11 @@ use std::{
     io::{BufRead, BufReader},
 };
 
-#[derive(Copy, Clone, Hash)]
+#[derive(PartialEq, Eq, Copy, Clone, Hash)]
 struct Pos {
     i: usize,
     j: usize,
 }
-
-impl PartialEq for Pos {
-    fn eq(&self, other: &Self) -> bool {
-        self.i == other.i && self.j == other.j
-    }
-}
-impl Eq for Pos {}
 
 struct Map<T: Copy> {
     map: Vec<Vec<T>>,
