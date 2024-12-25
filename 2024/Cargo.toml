@@ -5,10 +5,11 @@ edition = "2021"
 
 [[bin]]
 name = "this_day"
-path = "day17/main.rs"
+path = "day08/main.rs"
 
 [dependencies]
 delay = "0.3.1"
+glam = "0.29.2"
 num = "0.4.3"
 
 # [profile.dev]
