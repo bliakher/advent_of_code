@@ -71,7 +71,51 @@ fn part2(filename: &str) {
     println!("{:?}", sum);
 }
 
+fn check_report2(report: &Vec<i32>) -> bool {
+    let mut prev = report[0];
+    let mut prev_diff = report[1] - report[0];
+    let mut fix_used = false;
+    let mut i = 0;
+    while i < report.len() {
+        let level = report[i];
+        let diff = level - prev;
+        if diff.abs() >= 1 && diff.abs() <= 3 && diff * prev_diff > 0 {
+            prev = level;
+            prev_diff = diff;
+            i += 1;
+            continue;
+        }
+        if fix_used {
+            return false;
+        }
+        let next = report[i + 1];
+        let new_diff = next - prev;
+        if new_diff.abs() >= 1 && new_diff.abs() <= 3 && new_diff * prev_diff > 0 {
+            fix_used = true;
+            prev = next;
+            prev_diff = new_diff;
+            i += 2;
+            continue;
+        }
+        return false;
+    }
+    return true;
+}
+
+fn part2_sol2(filename: &str) {
+    let reports = read_input(filename);
+    let mut sum = 0;
+    for report in reports {
+        if check_report2(&report) {
+            sum += 1;
+        }
+    }
+
+    println!("{:?}", sum);
+}
+
 fn main() {
     part1("day02/input.txt");
     part2("day02/input.txt");
+    part2_sol2("day02/input.txt");
 }

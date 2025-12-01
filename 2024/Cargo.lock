@@ -7,6 +7,7 @@ name = "aoc2024"
 version = "0.1.0"
 dependencies = [
  "delay",
+ "glam",
  "num",
 ]
 
@@ -21,6 +22,12 @@ name = "delay"
 version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8546bb2c80129c9c85cd2b44e160b917f34a8b7ce9f3af675502cf9960e33d62"
+
+[[package]]
+name = "glam"
+version = "0.29.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "dc46dd3ec48fdd8e693a98d2b8bafae273a2d54c1de02a2a7e3d57d501f39677"
 
 [[package]]
 name = "num"

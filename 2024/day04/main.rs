@@ -22,7 +22,7 @@ fn part1(filename: &str) {
     let cols: i32 = word_search[0].len().try_into().unwrap();
     for i in 0..word_search.len() {
         for j in 0..word_search[0].len() {
-            counts += count_XMAS(i, j, &word_search, rows, cols);
+            counts += count_xmas(i, j, &word_search, rows, cols);
         }
     }
     println!("{counts}");
@@ -35,7 +35,20 @@ fn part2(filename: &str) {
     let cols: i32 = word_search[0].len().try_into().unwrap();
     for i in 0..word_search.len() {
         for j in 0..word_search[0].len() {
-            counts += count_XMAS_cross(i, j, &word_search, rows, cols);
+            counts += count_xmas_cross(i, j, &word_search, rows, cols);
+        }
+    }
+    println!("{counts}");
+}
+
+fn solve(filename: &str) {
+    let word_search = read_input(filename);
+    let mut counts = 0;
+    let rows: i32 = word_search.len().try_into().unwrap();
+    let cols: i32 = word_search[0].len().try_into().unwrap();
+    for i in 0..word_search.len() {
+        for j in 0..word_search[0].len() {
+            counts += count_xmas_cross(i, j, &word_search, rows, cols);
         }
     }
     println!("{counts}");
@@ -64,7 +77,7 @@ fn get_symbol(
     return None;
 }
 
-fn count_XMAS_cross(i: usize, j: usize, word_search: &Vec<Vec<char>>, rows: i32, cols: i32) -> i32 {
+fn count_xmas_cross(i: usize, j: usize, word_search: &Vec<Vec<char>>, rows: i32, cols: i32) -> i32 {
     if word_search[i][j] != 'A' {
         return 0;
     }
@@ -95,7 +108,7 @@ fn count_XMAS_cross(i: usize, j: usize, word_search: &Vec<Vec<char>>, rows: i32,
     }
 }
 
-fn count_XMAS(i: usize, j: usize, word_search: &Vec<Vec<char>>, rows: i32, cols: i32) -> i32 {
+fn count_xmas(i: usize, j: usize, word_search: &Vec<Vec<char>>, rows: i32, cols: i32) -> i32 {
     if word_search[i][j] != 'X' {
         return 0;
     }
@@ -110,12 +123,12 @@ fn count_XMAS(i: usize, j: usize, word_search: &Vec<Vec<char>>, rows: i32, cols:
         [1, 1],
     ];
     let mut counts = 0;
-    let X_MAS = ['M', 'A', 'S'];
+    let x_mas = ['M', 'A', 'S'];
     for direction in directions {
         let mut i_d = i;
         let mut j_d = j;
         let mut found = true;
-        for letter in X_MAS {
+        for letter in x_mas {
             if let Some(symbol) =
                 get_symbol(&mut i_d, &mut j_d, direction, word_search, rows, cols, true)
             {
